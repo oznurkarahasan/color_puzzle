@@ -4,32 +4,25 @@ import 'package:color_puzzle/core/utils/color_generator.dart';
 
 void main() {
   group('Renk Üretici Testleri', () {
-    test('6x6 Grid tam olarak 36 adet renk üretmeli', () {
+    test('4x4 Grid tam olarak 16 adet renk üretmeli', () {
       // Arrange (Hazırlık)
-      final colors = ColorGenerator.generateGrid(
-        size: 6,
-        tl: Colors.red,
-        tr: Colors.blue,
-        bl: Colors.green,
-        br: Colors.yellow,
-      );
+      final colors = ColorGenerator.generateLevelColors(rows: 4, cols: 4);
 
       // Assert (Kontrol)
-      expect(colors.length, 36);
+      expect(colors.length, 16);
     });
 
-    test('Sol üst köşe rengi kırmızı olmalı', () {
-      final colors = ColorGenerator.generateGrid(
-        size: 4,
-        tl: Colors.red,
-        tr: Colors.blue,
-        bl: Colors.green,
-        br: Colors.yellow,
-      );
-      expect(
-        colors.first.toARGB32(),
-        Colors.red.toARGB32(),
-      ); // Grid'in ilk elemanı sol üst köşedir
+    test('1x5 Şerit (Tek satır) tam olarak 5 adet renk üretmeli', () {
+      final colors = ColorGenerator.generateLevelColors(rows: 1, cols: 5);
+
+      expect(colors.length, 5);
+    });
+
+    test('Üretilen liste geçerli Color nesneleri içermeli', () {
+      final colors = ColorGenerator.generateLevelColors(rows: 2, cols: 2);
+
+      expect(colors.isNotEmpty, true);
+      expect(colors.first, isA<Color>());
     });
   });
 }
