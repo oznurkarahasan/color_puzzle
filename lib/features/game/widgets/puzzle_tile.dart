@@ -16,8 +16,8 @@ class PuzzleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DragTarget<int>(
-      onAccept: (gelenIndex) {
-        onSwap(gelenIndex, index);
+      onAcceptWithDetails: (details) {
+        onSwap(details.data, index);
       },
       builder: (context, candidateData, rejectedData) {
         bool uzerineGelindi = candidateData.isNotEmpty;

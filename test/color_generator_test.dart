@@ -26,8 +26,10 @@ void main() {
         bl: Colors.green,
         br: Colors.yellow,
       );
-      expect(colors.first.value, Colors.red.value);
-      // Grid'in ilk elemanı sol üst köşedir
+      expect(
+        colors.first.toARGB32(),
+        Colors.red.toARGB32(),
+      ); // Grid'in ilk elemanı sol üst köşedir
     });
   });
 }

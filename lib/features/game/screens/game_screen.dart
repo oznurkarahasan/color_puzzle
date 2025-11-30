@@ -44,7 +44,7 @@ class _GameScreenState extends State<GameScreen> {
   void _kazanmaKontrolu() {
     bool kazandi = true;
     for (int i = 0; i < hedefListe.length; i++) {
-      if (hedefListe[i].value != oyuncuListesi[i].value) {
+      if (hedefListe[i].toARGB32() != oyuncuListesi[i].toARGB32()) {
         kazandi = false;
         break;
       }
