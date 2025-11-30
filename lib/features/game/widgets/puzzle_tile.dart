@@ -3,26 +3,26 @@ import 'package:flutter/material.dart';
 class PuzzleTile extends StatelessWidget {
   final Color color;
   final int index;
-  final bool isLocked; // YENİ: Taş kilitli mi?
+  final bool isLocked;
+  // showHintEffect parametresini kaldırdık
   final Function(int fromIndex, int toIndex) onSwap;
 
   const PuzzleTile({
     super.key,
     required this.color,
     required this.index,
-    required this.isLocked, // YENİ
+    required this.isLocked,
     required this.onSwap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 1. Eğer taş kilitliyse, sürüklenebilir olmamalı.
-    // Sadece görüntüsünü döndürürüz.
+    // Kilitliyse (veya İpucu ile yerine konduysa) sadece görüntüyü göster
     if (isLocked) {
       return _buildKutuGorseli(isLocked: true);
     }
 
-    // 2. Kilitli değilse normal sürükle-bırak mantığı çalışır.
+    // Değilse sürükle-bırak çalışsın
     return DragTarget<int>(
       onAcceptWithDetails: (details) {
         onSwap(details.data, index);
@@ -59,11 +59,18 @@ class PuzzleTile extends StatelessWidget {
         boxShadow: isDragging
             ? [const BoxShadow(blurRadius: 10, color: Colors.black45)]
             : null,
-        border: isHovered ? Border.all(color: Colors.white, width: 3) : null,
+        border: isHovered
+            ? Border.all(color: Colors.white, width: 3)
+            : isLocked
+            ? Border.all(
+                color: Colors.black12,
+                width: 1,
+              ) // Kilitliler hafif çerçeveli
+            : null,
       ),
-      // KİLİTLİ İSE ORTASINA KÜÇÜK BİR NOKTA KOY (İPUCU)
+      // Sadece nokta işareti (kilit) kaldı
       child: isLocked
-          ? const Icon(Icons.circle, size: 8, color: Colors.black26)
+          ? const Icon(Icons.circle, size: 6, color: Colors.black26)
           : null,
     );
   }

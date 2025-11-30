@@ -13,11 +13,10 @@ class _GameScreenState extends State<GameScreen> {
   int currentLevel = 1;
   int satirSayisi = 1;
   int sutunSayisi = 5;
+  int ipucuHakki = 2;
 
   List<Color> hedefListe = [];
   List<Color> oyuncuListesi = [];
-
-  // YENİ: Kilitli olan indexleri tutan liste
   Set<int> kilitliIndexler = {};
 
   @override
@@ -27,7 +26,8 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _leveliBaslat() {
-    // --- LEVEL AYARLARI ---
+    ipucuHakki = 2;
+
     if (currentLevel == 1) {
       satirSayisi = 1;
       sutunSayisi = 5;
@@ -40,16 +40,11 @@ class _GameScreenState extends State<GameScreen> {
       sutunSayisi = baseSize;
     }
 
-    // 1. Hedef renkleri oluştur (Bu bizim cevap anahtarımız)
     hedefListe = ColorGenerator.generateLevelColors(
       rows: satirSayisi,
       cols: sutunSayisi,
     );
-
-    // 2. Kilitli olacak taşları belirle (Köşeler)
     _kilitliTaslariBelirle();
-
-    // 3. AKILLI KARIŞTIRMA (Sadece ortadakileri karıştır)
     oyuncuListesi = _sadeceOrtalariKaristir(hedefListe);
 
     setState(() {});
@@ -57,42 +52,32 @@ class _GameScreenState extends State<GameScreen> {
 
   void _kilitliTaslariBelirle() {
     kilitliIndexler.clear();
-
     if (currentLevel == 1) {
-      // Level 1 için sadece en başı ve en sonu kilitleyelim (Kolaylık olsun)
-      kilitliIndexler.add(0); // İlk kutu
-      kilitliIndexler.add(sutunSayisi - 1); // Son kutu
+      kilitliIndexler.add(0);
+      kilitliIndexler.add(sutunSayisi - 1);
     } else {
-      // Diğer levellerde 4 köşeyi kilitle
-      kilitliIndexler.add(0); // Sol Üst
-      kilitliIndexler.add(sutunSayisi - 1); // Sağ Üst
-      kilitliIndexler.add((satirSayisi - 1) * sutunSayisi); // Sol Alt
-      kilitliIndexler.add((satirSayisi * sutunSayisi) - 1); // Sağ Alt
+      kilitliIndexler.add(0);
+      kilitliIndexler.add(sutunSayisi - 1);
+      kilitliIndexler.add((satirSayisi - 1) * sutunSayisi);
+      kilitliIndexler.add((satirSayisi * sutunSayisi) - 1);
     }
   }
 
   List<Color> _sadeceOrtalariKaristir(List<Color> kaynak) {
-    // Hareket edebilir (kilitli olmayan) renkleri ayıkla
     List<Color> hareketliRenkler = [];
     for (int i = 0; i < kaynak.length; i++) {
       if (!kilitliIndexler.contains(i)) {
         hareketliRenkler.add(kaynak[i]);
       }
     }
-
-    // Bunları karıştır
     hareketliRenkler.shuffle();
 
-    // Şimdi yeni listeyi inşa et
     List<Color> sonuc = [];
     int hareketliSayac = 0;
-
     for (int i = 0; i < kaynak.length; i++) {
       if (kilitliIndexler.contains(i)) {
-        // Eğer kilitli bir yerse, orijinal (doğru) rengi koy
         sonuc.add(kaynak[i]);
       } else {
-        // Değilse, karıştırdığımız havuzdan sıradakini koy
         sonuc.add(hareketliRenkler[hareketliSayac]);
         hareketliSayac++;
       }
@@ -100,8 +85,52 @@ class _GameScreenState extends State<GameScreen> {
     return sonuc;
   }
 
+  void _ipucuKullan() {
+    if (ipucuHakki <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bu bölüm için ipucu bitti!"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    int? hataliIndex;
+    for (int i = 0; i < hedefListe.length; i++) {
+      if (hedefListe[i].toARGB32() != oyuncuListesi[i].toARGB32() &&
+          !kilitliIndexler.contains(i)) {
+        hataliIndex = i;
+        break;
+      }
+    }
+
+    if (hataliIndex == null) return;
+
+    Color dogruRenk = hedefListe[hataliIndex];
+    int? suAnkiYeri;
+    for (int k = 0; k < oyuncuListesi.length; k++) {
+      if (oyuncuListesi[k].toARGB32() == dogruRenk.toARGB32()) {
+        suAnkiYeri = k;
+        break;
+      }
+    }
+
+    if (suAnkiYeri != null) {
+      setState(() {
+        oyuncuListesi[suAnkiYeri!] = oyuncuListesi[hataliIndex!];
+        oyuncuListesi[hataliIndex] = dogruRenk;
+
+        kilitliIndexler.add(hataliIndex);
+        ipucuHakki--;
+        // Efekt tetikleme kodları kaldırıldı
+      });
+
+      _kazanmaKontrolu();
+    }
+  }
+
   void _renkleriDegistir(int eskiIndex, int yeniIndex) {
-    // Eğer hedef yer kilitliyse değişime izin verme (Ekstra güvenlik)
     if (kilitliIndexler.contains(yeniIndex) ||
         kilitliIndexler.contains(eskiIndex))
       return;
@@ -114,24 +143,31 @@ class _GameScreenState extends State<GameScreen> {
     _kazanmaKontrolu();
   }
 
-  // _kazanmaKontrolu, _levelAtla ve build metodunun geri kalanı aynı...
-  // Sadece PuzzleTile çağırırken parametreyi ekle:
+  void _kazanmaKontrolu() {
+    bool kazandi = true;
+    for (int i = 0; i < hedefListe.length; i++) {
+      if (hedefListe[i].toARGB32() != oyuncuListesi[i].toARGB32()) {
+        kazandi = false;
+        break;
+      }
+    }
 
-  // ... build metodunun içinde GridView.builder kısmında:
-  /*
-  itemBuilder: (context, index) {
-      bool isLocked = kilitliIndexler.contains(index); // Burayı hesapla
-      
-      return PuzzleTile(
-        color: oyuncuListesi[index],
-        index: index,
-        isLocked: isLocked, // YENİ PARAMETREYİ GEÇ
-        onSwap: _renkleriDegistir,
+    if (kazandi) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Level $currentLevel Tamamlandı! 🎉"),
+          backgroundColor: Colors.green,
+        ),
       );
-  },
-  */
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        setState(() {
+          currentLevel++;
+        });
+        _leveliBaslat();
+      });
+    }
+  }
 
-  // Kodun tamamını bozmamak için build metodunu buraya tekrar ekliyorum:
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,11 +177,45 @@ class _GameScreenState extends State<GameScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.lightbulb,
+                    color: ipucuHakki > 0 ? Colors.yellow : Colors.grey,
+                  ),
+                  onPressed: _ipucuKullan,
+                ),
+                if (ipucuHakki > 0)
+                  Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        "$ipucuHakki",
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               setState(() {
-                // Yenilerken de sadece ortaları karıştır
                 oyuncuListesi = _sadeceOrtalariKaristir(hedefListe);
               });
             },
@@ -167,13 +237,12 @@ class _GameScreenState extends State<GameScreen> {
               ),
               itemCount: oyuncuListesi.length,
               itemBuilder: (context, index) {
-                // Kilit kontrolü
                 bool isLocked = kilitliIndexler.contains(index);
 
                 return PuzzleTile(
                   color: oyuncuListesi[index],
                   index: index,
-                  isLocked: isLocked, // Widget'a bildiriyoruz
+                  isLocked: isLocked,
                   onSwap: _renkleriDegistir,
                 );
               },
@@ -182,31 +251,5 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ),
     );
-  }
-
-  // _kazanmaKontrolu ve _levelAtla fonksiyonlarını önceki kodundan aynen kullanabilirsin.
-  void _kazanmaKontrolu() {
-    bool kazandi = true;
-    for (int i = 0; i < hedefListe.length; i++) {
-      if (hedefListe[i].toARGB32() != oyuncuListesi[i].toARGB32()) {
-        kazandi = false;
-        break;
-      }
-    }
-
-    if (kazandi) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Level $currentLevel Tamamlandı! 🎉"),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Future.delayed(const Duration(milliseconds: 500), () {
-        setState(() {
-          currentLevel++;
-        });
-        _leveliBaslat();
-      });
-    }
   }
 }
