@@ -132,8 +132,9 @@ class _GameScreenState extends State<GameScreen> {
 
   void _renkleriDegistir(int eskiIndex, int yeniIndex) {
     if (kilitliIndexler.contains(yeniIndex) ||
-        kilitliIndexler.contains(eskiIndex))
+        kilitliIndexler.contains(eskiIndex)) {
       return;
+    }
 
     setState(() {
       final temp = oyuncuListesi[eskiIndex];
