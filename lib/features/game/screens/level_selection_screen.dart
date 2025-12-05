@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:color_puzzle/core/managers/level_manager.dart';
 import 'package:color_puzzle/features/game/screens/game_screen.dart';
+import 'package:color_puzzle/core/managers/audio_manager.dart';
 
 class LevelSelectionScreen extends StatefulWidget {
   const LevelSelectionScreen({super.key});
@@ -21,6 +22,19 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          // MÜZİK İKONU
+          IconButton(
+            icon: Icon(
+              AudioManager().isMusicOn ? Icons.volume_up : Icons.volume_off,
+            ),
+            onPressed: () {
+              setState(() {
+                AudioManager().toggleMusic();
+              });
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),

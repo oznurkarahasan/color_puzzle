@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="color_puzzle"
+        android:label="CO-MON"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

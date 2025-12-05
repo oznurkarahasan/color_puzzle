@@ -3,6 +3,7 @@ import 'package:color_puzzle/core/utils/color_generator.dart';
 import 'package:color_puzzle/features/game/widgets/puzzle_tile.dart';
 import 'package:color_puzzle/core/managers/level_manager.dart';
 import 'dart:async';
+import 'package:color_puzzle/core/managers/audio_manager.dart';
 
 class GameScreen extends StatefulWidget {
   final int initialLevel; // YENİ: Hangi level oynanacak?
@@ -382,6 +383,17 @@ class _GameScreenState extends State<GameScreen> {
           },
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              AudioManager().isMusicOn ? Icons.volume_up : Icons.volume_off,
+            ),
+            onPressed: () {
+              setState(() {
+                AudioManager().toggleMusic();
+              });
+            },
+          ),
+
           // İPUCU ALANI
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
