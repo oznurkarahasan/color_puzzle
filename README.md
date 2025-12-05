@@ -23,3 +23,6 @@ pip install -r requirements.txt
 # Her kurulum / güncelleme sonrası
 
 pip freeze > requirements.txt
+
+dart run flutter_launcher_icons
+dart run flutter_native_splash:create

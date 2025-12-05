@@ -15,6 +15,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_dotenv: ^6.0.0
   audioplayers: ^6.0.0
+  confetti: ^0.7.0
 
 dev_dependencies:
   flutter_native_splash: ^2.4.0
@@ -37,7 +38,7 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/1.png"
+  image_path: "assets/icon.png"
   remove_alpha_ios: true
 
 flutter_native_splash:
